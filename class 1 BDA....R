@@ -1,6 +1,6 @@
 # printing Hello World
 "Hello, World"
-#printing sum of operations
+#printing sum of operators
 A <-5
 B <-10
 C <-A + B
