@@ -12,7 +12,7 @@ v3 <- v1 / v2
 v3
 v4 <- sqrt(v1)
 v4
-#printing more variables
+#printing more variables using message
 greet <-"Hello,"
 name <-"Shivani"
 message <- paste(greet,name)
