@@ -32,6 +32,7 @@ p <- FALSE
 p <- FALSE
 typeof(p)
 #printing basic Math
+# Defining variables
 a <- 5
 b <- 3
 c <- a + b
