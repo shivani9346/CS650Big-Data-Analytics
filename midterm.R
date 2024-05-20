@@ -1,48 +1,77 @@
-# Load required libraries
-library(readr)
-library(dplyr)
+# Load Attendance Dataset
+attendance_data <- read.csv(file.choose())
+attendance_data
+
+# Install dplyr package if not already installed
+if (!requireNamespace("dplyr", quietly = TRUE)) {
+  install.packages("dplyr")
+}
+
+# Load necessary libraries
 library(ggplot2)
-library(tidyr)
-library(caret)
+library(dplyr)
 
-# Load the dataset
-dataset <- read.csv("C:/Users/badda/Downloads/2018-2019_Daily_Attendance_20240429.csv")
+# Display the first few rows of the dataset
+head(attendance_data)
 
-# Explore the dataset
-head(dataset)
-summary(dataset)
-
-# Check for missing values
-sum(is.na(dataset))
-
-# Preprocess the data as necessary (e.g., handle missing values, convert data types)
-
-# Linear Regression
-# Example: Predict attendance based on other variables
-linear_model <- lm(Attendance ~ ., data = dataset)
-
-# Summary of the linear regression model
+# 1. Linear Regression
+# Linear regression to predict Absent based on Enrolled
+linear_model <- lm(Absent ~ Enrolled, data = attendance_data)
 summary(linear_model)
 
-# Polynomial Regression
-# Example: Fit a polynomial regression model
-# You can choose appropriate degree for polynomial features
-polynomial_model <- lm(Attendance ~ poly(Feature1, 2) + poly(Feature2, 2), data = dataset)
-
-# Summary of the polynomial regression model
-summary(polynomial_model)
-
-# Logistic Regression
-# Example: If applicable (for binary classification tasks)
-# logistic_model <- glm(Outcome ~ ., data = dataset, family = "binomial")
-# summary(logistic_model)
-
-# Visualization (optional)
-# Example: Scatter plot of attendance vs. feature
-ggplot(data = dataset, aes(x = Feature1, y = Attendance)) +
+# Visualization for Linear Regression
+ggplot(attendance_data, aes(x = Enrolled, y = Absent)) +
   geom_point() +
-  geom_smooth(method = "lm") +
-  labs(x = "Feature 1", y = "Attendance", title = "Linear Regression")
+  geom_smooth(method = "lm", se = FALSE, col = "blue") +
+  labs(title = "Linear Regression: Absent vs Enrolled", x = "Enrolled", y = "Absent")
 
-# Additional visualization and analysis as needed
+# 2. Polynomial Regression
+# Polynomial regression to predict Absent based on Enrolled
+poly_model <- lm(Absent ~ poly(Enrolled, 2), data = attendance_data)
+summary(poly_model)
+
+# Visualization for Polynomial Regression
+ggplot(attendance_data, aes(x = Enrolled, y = Absent)) +
+  geom_point() +
+  stat_smooth(method = "lm", formula = y ~ poly(x, 2), se = FALSE, col = "red") +
+  labs(title = "Polynomial Regression: Absent vs Enrolled", x = "Enrolled", y = "Absent")
+
+# 3. Logistic Regression
+# Convert Released to a binary variable (0 for Not Released, 1 for Released)
+attendance_data <- attendance_data %>%
+  mutate(Released_binary = ifelse(Released == "Released", 1, 0))
+
+# Logistic regression to predict Released_binary based on Absent
+logistic_model <- glm(Released_binary ~ Absent, data = attendance_data, family = binomial)
+summary(logistic_model)
+
+# Visualization for Logistic Regression
+ggplot(attendance_data, aes(x = Absent, y = Released_binary)) +
+  geom_point() +
+  stat_smooth(method = "glm", method.args = list(family = binomial), se = FALSE, col = "green") +
+  labs(title = "Logistic Regression: Released vs Absent", x = "Absent", y = "Probability of Released")
+
+# Logistic regression to predict Released_binary based on Absent with increased max iterations
+logistic_model <- glm(Released ~ Absent, data = attendance_data, family = binomial, maxit = 100)
+summary(logistic_model)
+
+# Additional Plots for Visualization
+# Scatter plot with linear regression line
+plot1 <- ggplot(attendance_data, aes(x = Enrolled, y = Absent)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Scatter Plot with Linear Regression Line", x = "Enrolled", y = "Absent")
+
+# Scatter plot with polynomial regression line
+plot2 <- ggplot(attendance_data, aes(x = Enrolled, y = Absent)) +
+  geom_point() +
+  stat_smooth(method = "lm", formula = y ~ poly(x, 2), se = FALSE) +
+  labs(title = "Scatter Plot with Polynomial Regression Line", x = "Enrolled", y = "Absent")
+
+# Print the plots
+print(plot1)
+print(plot2)
+
+
+
 
